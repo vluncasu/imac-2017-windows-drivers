@@ -107,7 +107,7 @@ Boot Camp Assistant checks for internal BIOS boot and fails silently on external
 
 ---
 
-## Keyboard Remapping (Command = Ctrl)
+## Keyboard Remapping (Command = Ctrl) & Function Keys
 
 The installer swaps Command and Ctrl at the OS level:
 
@@ -117,6 +117,19 @@ The installer swaps Command and Ctrl at the OS level:
 | Control (Ctrl) | Win | Start menu, Win+Tab, Snap |
 
 This makes the keyboard feel like macOS — Cmd+C copies, Cmd+V pastes, etc.
+
+### Brightness & Media Keys (F1–F12)
+
+The Apple Keymagic driver preserves native keyboard behavior:
+
+| Key | Default (no Fn) | With Fn held |
+|-----|-----------------|--------------|
+| F1 / F2 | Brightness Down / Up | F1 / F2 |
+| F3 | Mission Control | F3 |
+| F7 / F8 / F9 | Prev / Play-Pause / Next | F7 / F8 / F9 |
+| F10 / F11 / F12 | Mute / Volume Down / Up | F10 / F11 / F12 |
+
+**Brightness works out of the box** — no additional software needed. Hold **Fn** to use the top row as standard function keys (F1–F12) in games or applications.
 
 To revert:
 ```powershell
