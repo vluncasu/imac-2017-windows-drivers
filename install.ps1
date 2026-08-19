@@ -28,7 +28,7 @@ Write-Host ''
 # ============================================================================
 # 1. WIFI: Broadcom BCM43602 (14E4:43BA) - Driver 7.35.118.83
 # ============================================================================
-Write-Host '[1/9] WiFi: Broadcom BCM43602 802.11ac...' -ForegroundColor Yellow
+Write-Host '[1/10] WiFi: Broadcom BCM43602 802.11ac...' -ForegroundColor Yellow
 
 # Remove broken 7.77.x driver if present
 $currentWifi = pnputil /enum-drivers 2>&1 | Out-String
@@ -64,7 +64,7 @@ Write-Host '  OK (7.35.118.83, MPC disabled)' -ForegroundColor Green
 # ============================================================================
 # 2. ETHERNET: Broadcom BCM57766 (14E4:1686) - Driver 214.0.0.1
 # ============================================================================
-Write-Host '[2/9] Ethernet: Broadcom NetXtreme Gigabit...' -ForegroundColor Yellow
+Write-Host '[2/10] Ethernet: Broadcom NetXtreme Gigabit...' -ForegroundColor Yellow
 $ethInfs = Get-ChildItem (Join-Path $drvDir 'ethernet') -Filter '*.inf'
 foreach ($inf in $ethInfs) { pnputil /add-driver $inf.FullName /install 2>&1 | Out-Null }
 
@@ -86,7 +86,7 @@ Write-Host '  OK (EEE/Green disabled, AutoNeg 1Gbps)' -ForegroundColor Green
 # ============================================================================
 # 3. BLUETOOTH: Broadcom BCM4356 (05AC:8296)
 # ============================================================================
-Write-Host '[3/9] Bluetooth: Broadcom...' -ForegroundColor Yellow
+Write-Host '[3/10] Bluetooth: Broadcom...' -ForegroundColor Yellow
 $btInfs = Get-ChildItem (Join-Path $drvDir 'bluetooth') -Filter '*.inf' -Recurse
 $btCount = 0
 foreach ($inf in $btInfs) {
@@ -99,7 +99,7 @@ Write-Host "  OK ($btCount drivers)" -ForegroundColor Green
 # ============================================================================
 # 4. AUDIO: Cirrus Logic CS4208 + Apple Audio
 # ============================================================================
-Write-Host '[4/9] Audio: Cirrus Logic + Apple...' -ForegroundColor Yellow
+Write-Host '[4/10] Audio: Cirrus Logic + Apple...' -ForegroundColor Yellow
 $audioInfs = Get-ChildItem (Join-Path $drvDir 'audio') -Filter '*.inf' -Recurse
 $audioCount = 0
 foreach ($inf in $audioInfs) {
@@ -112,7 +112,7 @@ Write-Host "  OK ($audioCount drivers)" -ForegroundColor Green
 # ============================================================================
 # 5. KEYBOARD: Apple Keymagic (key remapping support)
 # ============================================================================
-Write-Host '[5/9] Keyboard: Apple Keymagic...' -ForegroundColor Yellow
+Write-Host '[5/10] Keyboard: Apple Keymagic...' -ForegroundColor Yellow
 $kbInfs = Get-ChildItem (Join-Path $drvDir 'keyboard') -Filter '*.inf'
 foreach ($inf in $kbInfs) { pnputil /add-driver $inf.FullName /install 2>&1 | Out-Null }
 Log 'Keyboard driver installed'
@@ -121,7 +121,7 @@ Write-Host '  OK' -ForegroundColor Green
 # ============================================================================
 # 6. MOUSE: Apple Wireless Mouse + Trackpad
 # ============================================================================
-Write-Host '[6/9] Mouse: Apple Wireless Mouse + Trackpad...' -ForegroundColor Yellow
+Write-Host '[6/10] Mouse: Apple Wireless Mouse + Trackpad...' -ForegroundColor Yellow
 $mouseInfs = Get-ChildItem (Join-Path $drvDir 'mouse') -Filter '*.inf' -Recurse
 foreach ($inf in $mouseInfs) { pnputil /add-driver $inf.FullName /install 2>&1 | Out-Null }
 # Disable mouse acceleration
@@ -135,7 +135,7 @@ Write-Host '  OK (acceleration OFF, linear 1:1)' -ForegroundColor Green
 # ============================================================================
 # 7. CHIPSET: Intel 100 Series + Management Engine
 # ============================================================================
-Write-Host '[7/9] Chipset: Intel 100 Series + ME...' -ForegroundColor Yellow
+Write-Host '[7/10] Chipset: Intel 100 Series + ME...' -ForegroundColor Yellow
 $chipInfs = Get-ChildItem (Join-Path $drvDir 'chipset') -Filter '*.inf' -Recurse
 foreach ($inf in $chipInfs) { pnputil /add-driver $inf.FullName /install 2>&1 | Out-Null }
 $mePath = Join-Path $drvDir 'chipset\me\SetupME.exe'
@@ -146,18 +146,40 @@ Log 'Chipset + Intel ME installed'
 Write-Host '  OK' -ForegroundColor Green
 
 # ============================================================================
-# 8. KEYBOARD REMAP: Command (Win) = Ctrl
+# 8. GPU: AMD Radeon Pro 570/575/580 (Polaris) - Auto-download
 # ============================================================================
-Write-Host '[8/9] Keyboard remap: Command = Ctrl...' -ForegroundColor Yellow
+Write-Host '[8/10] GPU: AMD Radeon Pro (downloading driver)...' -ForegroundColor Yellow
+$gpuDir = Join-Path $drvDir 'gpu'
+if (-not (Test-Path $gpuDir)) { New-Item -Path $gpuDir -ItemType Directory -Force | Out-Null }
+$amdInstaller = Join-Path $gpuDir 'amd-detect-install.exe'
+if (-not (Test-Path $amdInstaller)) {
+    try {
+        $amdUrl = 'https://drivers.amd.com/drivers/installer/24.20/whql/amd-software-adrenalin-edition-24.7.1-minimalsetup-240801_web.exe'
+        Log "Downloading AMD Auto-Detect tool..."
+        Invoke-WebRequest -Uri $amdUrl -OutFile $amdInstaller -UseBasicParsing -TimeoutSec 120 -EA Stop
+        Log "AMD driver downloaded: $amdInstaller"
+        Write-Host '  Downloaded. Run amd-detect-install.exe after restart.' -ForegroundColor Green
+    } catch {
+        Log "AMD download failed (no internet?). Download manually from AMD.com"
+        Write-Host '  SKIPPED (no internet). Download from AMD.com after restart.' -ForegroundColor DarkYellow
+    }
+} else {
+    Write-Host '  Already downloaded.' -ForegroundColor Green
+}
+
+# ============================================================================
+# 9. KEYBOARD REMAP: Command (Win) = Ctrl
+# ============================================================================
+Write-Host '[9/10] Keyboard remap: Command = Ctrl...' -ForegroundColor Yellow
 $map = [byte[]](0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x05,0x00,0x00,0x00, 0x1D,0x00,0x5B,0xE0, 0x5B,0xE0,0x1D,0x00, 0x1D,0xE0,0x5C,0xE0, 0x5C,0xE0,0x1D,0xE0, 0x00,0x00,0x00,0x00)
 Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layout' -Name 'Scancode Map' -Value $map -Type Binary
 Log 'Keyboard: Command<->Ctrl swap applied'
 Write-Host '  OK (requires restart)' -ForegroundColor Green
 
 # ============================================================================
-# 9. SYSTEM CONFIGURATION (Performance + USB SSD)
+# 10. SYSTEM CONFIGURATION (Performance + USB SSD)
 # ============================================================================
-Write-Host '[9/9] System configuration...' -ForegroundColor Yellow
+Write-Host '[10/10] System configuration...' -ForegroundColor Yellow
 
 # --- Keyboard layout: US English ---
 $newList = New-WinUserLanguageList 'en-US'

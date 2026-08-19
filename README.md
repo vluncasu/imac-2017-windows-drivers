@@ -31,7 +31,7 @@ No internet connection required. All drivers are included offline.
 | **Ethernet** | Broadcom BCM57766 (14E4:1686) | b57nd60a.sys v214.0.0.1 | Fixed (1 Gbps) |
 | **Bluetooth** | Broadcom BCM4356A2 (05AC:8296) | AppleBTBC.sys | Working |
 | **Audio** | Cirrus Logic CS4208 | AppleAudio.sys + CS4208 | Working |
-| **GPU** | AMD Radeon Pro 580 (1002:67DF) | User-supplied (AMD.com) | — |
+| **GPU** | AMD Radeon Pro 570/575/580 (Polaris) | AMD Adrenalin (auto-download) | Working |
 | **Chipset** | Intel 100 Series / Sunrise Point | Intel SerialIO + ME | Working |
 | **Keyboard** | Apple Magic Keyboard | Keymagic.sys | Working |
 | **Mouse** | Apple Magic Mouse 2 / Trackpad | AppleWirelessMouse.sys | Working |
@@ -73,6 +73,26 @@ The Broadcom BCM57766 supports Gigabit but may negotiate at 100 Mbps due to:
 3. **Bad cable** — Gigabit requires Cat5e/Cat6 with all 8 wires
 
 The installer disables EEE and Green Ethernet automatically. If still 100 Mbps after install: **replace the Ethernet cable** with Cat5e or better.
+
+---
+
+## AMD Radeon Pro GPU Driver (570 / 575 / 580)
+
+All iMac 2017 GPU variants use the same AMD driver package (Polaris architecture, device ID `1002:67DF`). The installer automatically downloads the correct driver if internet is available.
+
+| GPU Variant | Device ID | Notes |
+|-------------|-----------|-------|
+| Radeon Pro 570 (4GB) | 1002:67DF | Base config |
+| Radeon Pro 575 (4GB) | 1002:67DF | BTO upgrade |
+| Radeon Pro 580 (8GB) | 1002:67DF | Top config |
+
+**Download links:**
+- [AMD Auto-Detect & Install (Recommended)](https://www.amd.com/en/support/download/drivers.html) — detects your GPU automatically
+- [AMD Radeon Pro 500 Series Drivers](https://www.amd.com/en/support/graphics/radeon-pro/radeon-pro-500-series) — manual selection page
+
+The installer will attempt to download the AMD Auto-Detect tool automatically. If offline, download manually after install.
+
+> **Note:** Apple's Boot Camp AMD driver is outdated and may cause display glitches. Always use the latest AMD Adrenalin driver directly from AMD.
 
 ---
 
@@ -166,6 +186,7 @@ imac-2017-windows-drivers/
     ├── ethernet/            # Broadcom BCM57766 — v214.0.0.1
     ├── bluetooth/           # Broadcom BCM4356A2 + firmware
     ├── audio/               # Cirrus Logic CS4208 + Apple Audio
+    ├── gpu/                 # AMD Radeon Pro 570/575/580 (auto-download)
     ├── keyboard/            # Apple Keymagic
     ├── mouse/               # Apple Magic Mouse + Trackpad
     └── chipset/             # Intel 100 Series + Management Engine
